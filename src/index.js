@@ -1,26 +1,17 @@
-import Gameboard from "./gameboard.js";
-import Ship from "./ship.js";
+import Gameboard from "../src/gameboard.js";
+import Ship from "../src/ship.js";
+import Player from "../src/player.js";
 
-let ship1 = new Ship(10);
-let ship2 = new Ship(10);
+let play = new Player("play", true);
 
-let gameboard = new Gameboard();
-console.log(gameboard.placeShip(ship1, 10, 15, true));
-console.log(gameboard.placeShip(ship2, 20, 25, true));
-console.log(gameboard.grid[10][15]);
-console.log(ship1.length);
+let ship1 = new Ship(5); 
 
-// console.log(gameboard.grid);
+let field1 = new Gameboard();
+let field2 = new Gameboard();
 
-// for(let i = 0; i < 10; i++){
-//     let newX = 50 + i;
-//     let newY = 60;
-//     console.log(gameboard.grid[newX, 60]);
-// }
+play.playTurn(field1, field2);
 
-console.log(gameboard)
-console.log(typeof(gameboard.grid));
+field1.placeShip(ship1, 20, 30, true);
+field2.placeShip(ship1, 20, 30, true);
+field2.placeShip(ship1, 30, 40, true);
 
-gameboard.receiveAttack(11,15);
-gameboard.receiveAttack(13,15);
-console.log(gameboard);

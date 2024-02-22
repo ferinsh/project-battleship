@@ -87,6 +87,7 @@ describe('Gameboard', () => {
         gameboard.placeShip(ship, 10, 20, true);
         gameboard.receiveAttack(11, 20);
         expect(gameboard.ships[0].ship.hits).toBe(5);
+        //expect(gameboard.ships[0].ship).toBe(5);
     })
 
     it('should change ship sunk status to true', () => {
@@ -95,6 +96,15 @@ describe('Gameboard', () => {
         gameboard.receiveAttack(11, 20);
         gameboard.receiveAttack(14, 20);
         expect(gameboard.ships[0].ship.sunk).toBe(true);
+    })
+
+    it("should receive attack and return true", () => {
+        const ship = new Ship(10);
+        gameboard.placeShip(ship, 10, 20, true);
+        expect(gameboard.receiveAttack(12, 20)).toBe(true);
+        expect(gameboard.grid[12][20].isShip).toBe(false);
+        expect(gameboard.grid[12][20].isHit).toBe(true);
+        expect(gameboard.grid[13][20].isShip).toBe(false);
     })
 
 })
