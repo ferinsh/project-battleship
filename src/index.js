@@ -1,17 +1,14 @@
-import Gameboard from "../src/gameboard.js";
-import Ship from "../src/ship.js";
-import Player from "../src/player.js";
+import Ship from './ship.js'
+import Gameboard from './gameboard.js'
 
-let play = new Player("play", true);
 
-let ship1 = new Ship(5); 
+// let gameboard = new Gameboard(10);
 
-let field1 = new Gameboard();
-let field2 = new Gameboard();
+// gameboard.placeShip(new Ship(3), 1, 0, true);
+// gameboard.placeShip(new Ship(5), 1, 1, false);
+// console.log(gameboard.grid[2][0]);
 
-play.playTurn(field1, field2);
+// gameboard.recieveAttack(11, 2, 0);
+// console.log(gameboard.grid[1][0]);
 
-field1.placeShip(ship1, 20, 30, true);
-field2.placeShip(ship1, 20, 30, true);
-field2.placeShip(ship1, 30, 40, true);
 

@@ -1,95 +1,126 @@
 import Ship from "./ship.js";
 
 export default class Gameboard{
-    constructor(){
-        this.gridSize = 100;
-        this.grid = Array.from({ length: this.gridSize }, () =>
-            Array.from({ length: this.gridSize }, () => ({ isShip: false, isHit: false, ship: {} }))
-        );
-        this.ships = [];
-        this.missedAttacks = [];
+    constructor(size){
+        this.gridSize = size;
+        this.grid = this.createGrid();
+        this.shipList = [];
+        this.numOfShips = 0;
     }
 
-    placeShip(ship,x,y,isHorizontal){
-        if(ship.length > this.gridSize){
-            //if ship length is greater than grid size program throws error
-            throw new Error("Invalid Length");
-        }
-        if(this.canPlaceShip(ship, x, y, isHorizontal)){
-            const shipCordinates = [];
-            for(let i = 0; i < ship.length; i++){
-                const newX = isHorizontal ? x + i : x;
-                const newY = isHorizontal ? y : y + i;
-                this.grid[newX][newY].isShip = true;
-                this.grid[newX][newY].ship = ship;
-                shipCordinates.push({x: newX, y: newY});
+    createGrid(){
+        let map = [];
+        for(let i = 0; i < this.gridSize; i++){
+            let temp = [];
+            for(let j = 0; j < this.gridSize; j++){
+                temp[j] = {isShip: false, ship: {}, isHorizontal: undefined};
             }
-            this.ships.push({ship: new Ship(ship.length), coordinates: shipCordinates});
-            return true;
+            map[i] = temp;
         }
-        return false;
+
+        return map;
     }
 
-    canPlaceShip(ship, x, y, isHorizontal) {
-        if (isHorizontal && x + ship.length > this.gridSize){
-            console.log("Can't place");
+    placeShip(shp, x, y, isHorizontal){
+        if(this.canPlaceShip(shp, x, y, isHorizontal)){
+            //get complete coordinates
+            let tempCoord = [];
+            if(isHorizontal){
+                let j = y;
+                for(let i = x; i < (shp.length + x); i++){
+                    this.grid[i][j].isShip = true;
+                    this.grid[i][j].ship = shp;
+                    this.grid[i][j].isHorizontal = true;
+                    tempCoord.push({x: i, y: j});
+                }
+            }else{
+                let i = x;
+                for(let j = y; j < (shp.length + y); j++){
+                    this.grid[i][j].isShip = true;
+                    this.grid[i][j].ship = shp;
+                    this.grid[i][j].isHorizontal = false;
+                    tempCoord.push({x: i, y: j});
+                }
+            }
+            this.shipList.push({ship: this.grid[x][y].ship, coord: tempCoord, position: isHorizontal});
+            this.numOfShips++;
+        }else{
             return false;
         }
+    }
 
-        if (!isHorizontal && y + ship.length > this.gridSize){
-            console.log("Can't place");
+    canPlaceShip(shp, x, y, isHorizontal){
+        if((shp.length + x) > this.gridSize || (shp.length + y) > this.gridSize){
             return false;
         }
-
-        for(let i = 0; i < ship.length; i++){
-            const newX = isHorizontal ? x + i : x;
-            const newY = isHorizontal ? y : y + i;
-            if(this.grid[newX][newY].isShip) {
-                console.log("Can't place");
-                return false;
+        
+        if(isHorizontal){
+            let j = y;
+            for(let i = x; i < (shp.length + x); i++){
+                if(this.grid[i][j].isShip == true){
+                    return false;
+                }
+            }
+        }else{
+            let i = x;
+            for(let j = y; j < (shp.length + y); j++){
+                if(this.grid[i][j].isShip == true){
+                    return false;
+                }
             }
         }
 
         return true;
     }
 
-    receiveAttack(x, y){
-        console.log("grid", this.grid[20]);
-        if(this.grid[x+1][y].isHit) {
-            console.log("Already hit");
-            return false;
+    recieveAttack(dmg, x, y){
+        let ship = this.grid[x][y].ship;
+        let shipStart = [];
+
+        for(let i = 0; i < this.numOfShips; i++){
+            if(this.shipList[i].coord == [x,y]){
+                
+            }
         }
+        
 
-        this.grid[x][y].isHit = true;
+        if(!this.grid[x][y].isShip){
+            return false;
+        }else{
+            this.grid[x][y].ship.hit(dmg);
+            
+            console.log(this.grid[x][y].ship);
+            console.log(this.shipList);
 
-        // for(let i = 0; i < this.ship.le)
-        console.log(this.grid[x][y]);
-        if(this.grid[x][y].isShip) {
-            //let tempCoord = {};
-            console.log("coord", this.ships)    
-            this.ships.forEach(ship => {
-                ship.coordinates.forEach(coord => {
-                    if(coord.x === x && coord.y === y){
-                        ship.ship.hit();
+            if(this.grid[x][y].ship.sunk){
+                for(let i = 0; i < this.shipList.length; i++){
+                    for(let j = 0; j < this.shipList[i].coord.length; j++){
+                        if(this.shipList[i].coord[j].x == x && this.shipList[i].coord[j].y == y){
+                            shipStart = {x: this.shipList[i].coord[0].x, y: this.shipList[i].coord[0].y};
+                            this.shipList.splice(i, 1);
+                            break;
+                        }
                     }
-                })
-            })
-            this.grid[x][y].isShip = false;
-            console.log("grid", this.grid[20]);
-            console.log(this.ships);
-            return true;
-        } else {
-            this.missedAttacks.push({x,y});
-            console.log("missed attack");
-            console.log("grid", this.grid[20]);
-            console.log(this.ships);
-            return false;
+                }   
+                let length = this.grid[shipStart.x][shipStart.y].ship.length;
+                if(this.grid[shipStart.x][shipStart.y].isHorizontal){
+                    for(let i = shipStart.x; i <= length; i++){
+                        this.grid[i][y].isShip = false;
+                        this.grid[i][y].isHorizontal = undefined;
+                        this.grid[i][y].ship = {};
+                    }
+                }else{
+                    for(let j = shipStart.y; j <= length; j++){
+                        this.grid[i][y].isShip = false;
+                        this.grid[i][y].isHorizontal = undefined;
+                        this.grid[i][y].ship = {};
+                    }
+                }
+                console.log(this.grid);
+
+            }
+
+            
         }
     }
-
-    allShipsSunk(){
-        return this.ships.every(ship => ship.ship.sunk);
-    }
-
-
 }
